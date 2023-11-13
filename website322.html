@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        /* Your existing CSS styles */
+
+        /* Additional style for timer */
+        #timer {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+    <script defer src="script.js"></script>
+    <title>Challenging Reading Quiz</title>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Challenging Reading Quiz</h1>
+
+        <form id="quizForm">
+            <div id="questionsContainer"></div>
+
+            <div class="progress mt-4">
+                <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
+            <button type="button" class="btn btn-primary mt-3" onclick="calculateScore()">Submit</button>
+        </form>
+
+        <div id="result" class="mt-4"></div>
+        <div id="timer" class="mt-4"></div>
+    </div>
+
+    <script>
+        const questions = [
+            { question: 'من هم الهكسوس ؟', answer: 'جماعه من الرعاة' },
+            { question: 'اين كان يعيش الهكسوس ؟', answer: 'في اسيا' },
+            { question: 'من اي جهة اغار الهكسوس على مصر؟', answer: 'من الشمال' },
+            { question: 'من قائد الجيوش العربية ضد الهكسوس؟', answer: 'القائد بيبي' },
+            { question: 'من اين جاء إسفينس؟ ', answer: 'من بلاد النوبة' },
+            { question: 'من هو امير طبية ؟', answer: 'سقنن رع' },
+            { question: 'اين يعيش قوم زولو؟', answer: 'اقاصى غابات النوبة' },
+            { question: 'اين كانت اول معركة حقيقية ضد الهكسوس؟', answer: 'في أمبوس' },
+            { question: 'كم يوم استمر القتال في مدينة هيراكونبوليس؟', answer: '12' },
+            { question: 'ما اسم اميرة الهكسوس الاسيرة؟', answer: 'امنريرس' },
+        ];
+
+        const timerDurationInSeconds = 7 * 60; // 7 minutes
+        let currentQuestion = 0;
+        let score = 0;
+        let timeInSeconds = timerDurationInSeconds;
+        let timerInterval;
+
+        function createQuestionElement(question) {
+            const questionElement = document.createElement('div');
+            questionElement.classList.add('form-group');
+
+            const questionTextElement = document.createElement('label');
+            questionTextElement.textContent = question.question;
+            questionElement.appendChild(questionTextElement);
+
+            const answerInputElement = document.createElement('input');
+            answerInputElement.setAttribute('type', 'text');
+            answerInputElement.classList.add('form-control');
+            questionElement.appendChild(answerInputElement);
+
+            return questionElement;
+        }
+
+        function renderQuestion() {
+            const questionsContainer = document.getElementById('questionsContainer');
+            const question = questions[currentQuestion];
+
+            const questionElement = createQuestionElement(question);
+            questionsContainer.textContent = '';
+            questionsContainer.appendChild(questionElement);
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.textContent = '';
+            progressBar.style.width = progress + "%";
+            progressBar.setAttribute('aria-valuenow', progress);
+        }
+
+        function calculateScore() {
+            const answerInputElement = document.querySelector('#questionsContainer input');
+            const userAnswer = answerInputElement.value.trim().toLowerCase();
+            const question = questions[currentQuestion];
+
+            if (userAnswer === question.answer.toLowerCase()) {
+                score++;
+            }
+
+            answerInputElement.value = '';
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                updateProgressBar();
+            } else {
+                clearInterval(timerInterval);
+                showResult();
+            }
+        }
+
+        function showResult() {
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = `Your score: ${score} out of ${questions.length}`;
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+
+            function formatTime(timeInSeconds) {
+                const minutes = Math.floor(timeInSeconds / 60);
+                const seconds = timeInSeconds % 60;
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            function updateTimer() {
+                timeInSeconds--;
+                timerElement.textContent = formatTime(timeInSeconds);
+
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    showResult();
+                }
+            }
+
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        renderQuestion();
+        updateProgressBar();
+        startTimer();
+    </script>
+</body>
+</html>
